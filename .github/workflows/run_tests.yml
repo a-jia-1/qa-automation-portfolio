@@ -18,8 +18,8 @@ jobs:
       uses: actions/checkout@v4
 
     # 2. 在虛擬機上安裝 Python 3.11 環境
-    - name: Set up Python
-      uses: actions/actions-setup-python@v5
+     name: Set up Python
+  uses: actions/setup-python@v5  
       with:
         python-version: '3.11'
 
