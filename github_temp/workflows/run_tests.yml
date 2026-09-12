@@ -1,0 +1,46 @@
+name: Playwright Automation Tests
+
+# 觸發條件：當我們把程式碼 Push（推上）到 main 分支，或發 PR 時
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    # 叫 GitHub 幫我們開一台免費的 Ubuntu  Linux 虛擬機
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 把我們寫的程式碼複製到虛擬機上
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. 在虛擬機上安裝 Python 3.11 環境
+    - name: Set up Python
+      uses: actions/actions-setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # 3. 讀取我們在 GitHub 後台設定好的秘密帳密，並寫成雲端的 .env 檔案
+    # 💡 這樣我們就不用把有密碼的 .env 上傳到公開的 GitHub 了！資安滿分！
+    - name: Create .env file
+      run: |
+        echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+        echo "TEST_USER=${{ secrets.TEST_USER }}" >> .env
+        echo "TEST_PASSWORD=${{ secrets.TEST_PASSWORD }}" >> .env
+
+    # 4. 安裝 requirements.txt 裡面的所有測試零件
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 5. 安裝雲端虛擬機專用的 Playwright 瀏覽器核心
+    - name: Install Playwright Browsers
+      run: playwright install --with-deps
+
+    # 6. 正式轟炸！執行測試！
+    - name: Run Pytest
+      run: pytest -v
